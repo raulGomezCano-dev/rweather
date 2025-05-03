@@ -1,30 +1,71 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class BackgroundImageService {
-  String getImageUrl(String weatherType) {
+  // Método que recibe el tipo de clima y devuelve la URL de la imagen desde Unsplash
+  Future<String> getImageUrl(String weatherType) async {
+    final apiKey = dotenv.env['IMAGES_KEY'];
+
+    // Mapea los tipos de clima a las palabras clave para Unsplash
+    String query = '';
+
     switch (weatherType) {
       case 'Clear':
-        return 'https://source.unsplash.com/1600x900/?clear-sky';
+        query = 'clear-sky';
+        break;
       case 'Clouds':
-        return 'https://source.unsplash.com/1600x900/?clouds';
+        query = 'cloudy';
+        break;
       case 'Rain':
-        return 'https://source.unsplash.com/1600x900/?rainy';
+        query = 'rainy';
+        break;
       case 'Snow':
-        return 'https://source.unsplash.com/1600x900/?snow';
+        query = 'snow';
+        break;
       case 'Thunderstorm':
-        return 'https://source.unsplash.com/1600x900/?thunderstorm';
+        query = 'thunderstorm';
+        break;
       case 'Drizzle':
-        return 'https://source.unsplash.com/1600x900/?drizzle';
+        query = 'drizzle';
+        break;
       case 'Mist':
-        return 'https://source.unsplash.com/1600x900/?mist';
+        query = 'mist';
+        break;
       case 'Smoke':
-        return 'https://source.unsplash.com/1600x900/?smoke';
+        query = 'smoke';
+        break;
       case 'Haze':
-        return 'https://source.unsplash.com/1600x900/?haze';
+        query = 'haze';
+        break;
       case 'Dust':
-        return 'https://source.unsplash.com/1600x900/?dust';
+        query = 'dust';
+        break;
       case 'Fog':
-        return 'https://source.unsplash.com/1600x900/?fog';
+        query = 'fog';
+        break;
       default:
-        return 'https://source.unsplash.com/1600x900/?weather';
+        query = 'weather';
+    }
+
+    // Usamos el endpoint de búsqueda de imágenes en Unsplash con un término relacionado con el clima
+    final url = Uri.parse(
+      'https://api.unsplash.com/photos/random?query=$query&client_id=$apiKey&orientation=landscape',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final imageUrl = data['urls']?['regular'];
+
+      if (imageUrl != null) {
+        return imageUrl;
+      } else {
+        throw Exception('No se encontró una URL válida en la respuesta.');
+      }
+    } else {
+      throw Exception('Error en la solicitud a Unsplash: ${response.body}');
     }
   }
 }

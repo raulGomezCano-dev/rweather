@@ -17,9 +17,9 @@ class HourlyWeather {
 
   factory HourlyWeather.fromJson(Map<String, dynamic> json) {
     return HourlyWeather(
-      temperature: json['main']['temp'],
-      minTemperature: json['main']['temp_min'],
-      maxTemperature: json['main']['temp_max'],
+      temperature: (json['main']['temp'] as num).toDouble(),
+    minTemperature: (json['main']['temp_min'] as num).toDouble(),
+    maxTemperature: (json['main']['temp_max'] as num).toDouble(),
       icon: json['weather'][0]['icon'],
       probOfRain: (json['pop'] ?? 0).toDouble(),
       dateTime: DateTime.parse(json['dt_txt']),

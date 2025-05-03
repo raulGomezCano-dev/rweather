@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:rweather/models/hourly_weather.dart';
 import 'package:rweather/models/weather_info.dart';
@@ -6,7 +7,7 @@ import 'package:rweather/models/weather_info.dart';
 class WeatherService {
   final String lat = '40.4531';
   final String lon = '-3.6883';
-  final String apiKey = 'f1e2ea0a33edd83daff1f8fdddddae11';
+  final String? apiKey = dotenv.env['WEATHER_KEY'];
 
   Future<WeatherInfo> fetchCurrentWeather() async {
     final url = Uri.parse(
