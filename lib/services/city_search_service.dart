@@ -32,7 +32,7 @@ class CitySearchService {
 
   /// Obtener coordenadas de una ciudad usando Place Details API
   // Future<Map<String, double>> obtenerCoordenadas(String placeId) async {
-  void obtenerCoordenadas(String place) async {
+  Future<Map<String, dynamic>> obtenerCoordenadas(String place) async {
     if (apiKey == null) throw Exception('API Key no encontrada');
 
     final uri = Uri.parse(
@@ -46,11 +46,10 @@ class CitySearchService {
 
     if (data['status'] == 'OK') {
       final location = data['results'][0]['geometry']['location'];
-      print(location);
-      // return {
-      //   'lat': location['lat'],
-      //   'lng': location['lng'],
-      // };
+      return {
+        'lat': location['lat'],
+        'lng': location['lng'],
+      };
     } else {
       throw Exception('Error al obtener coordenadas: ${data['status']}');
     }

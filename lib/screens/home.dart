@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:rweather/models/hourly_weather.dart';
 import 'package:rweather/models/weather_info.dart';
+import 'package:rweather/screens/city_searcher.dart';
 import 'package:rweather/services/background_image_service.dart';
-import 'package:rweather/services/geocoding_service.dart';
+import 'package:rweather/services/city_search_service.dart';
 import 'package:rweather/services/weather_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,17 +19,21 @@ class HomeScreenState extends State<HomeScreen> {
   final cityService = CitySearchService();
   final TextEditingController cityController = TextEditingController();
 
-  double temperature = 0;
-  double minTemperature = 0;
-  double maxTemperature = 0;
-  double feelsLike = 0;
+  String lat = '40.4531';
+  String lon = '-3.6883';
+
+  int temperature = 0;
+  int minTemperature = 0;
+  int maxTemperature = 0;
+  int feelsLike = 0;
   String city = '';
   String description = '';
-  double windSpeed = 0;
+  int windSpeed = 0;
   WeatherInfo? weatherData;
   List<HourlyWeather> hourlyForecast = [];
   String? backgroundImageUrl;
   bool searchingCity = false;
+  bool darkCard = false;
 
   @override
   void initState() {
@@ -40,18 +44,24 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> loadWeather() async {
     try {
-      final data = await weatherService.fetchCurrentWeather();
+      final data = await weatherService.fetchCurrentWeather(lat, lon);
       setState(() {
         weatherData = data;
         temperature = weatherData!.temperature;
         minTemperature = weatherData!.minTemperature;
         maxTemperature = weatherData!.maxTemperature;
-        city = weatherData!.city;
         description = weatherData!.description;
         feelsLike = weatherData!.feelsLike;
         windSpeed = weatherData!.windSpeed;
         loadBackgroundImage(
-            weatherData!.description); // Cambiar el fondo según el clima
+            weatherData!.weatherType); // Cambiar el fondo según el clima
+        // Cambiar el color de Cards y sus Text dependiendo del fondo
+        if(weatherData!.weatherType == 'Clear' || weatherData!.weatherType == 'Clouds'){
+          darkCard = true;
+        }
+        else{
+          darkCard = false;
+        }
       });
     } catch (e) {
       print(e);
@@ -71,7 +81,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> loadHourlyForecast() async {
     try {
-      final data = await weatherService.fetchHourlyForecast();
+      final data = await weatherService.fetchHourlyForecast(lat, lon);
       setState(() {
         hourlyForecast = data;
       });
@@ -117,8 +127,7 @@ class HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 0, 0, 0)
-                                      .withAlpha(0),
+                              color: Color.fromARGB(255, 0, 0, 0).withAlpha(0),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             width: MediaQuery.of(context).size.width / 2,
@@ -136,10 +145,23 @@ class HomeScreenState extends State<HomeScreen> {
                           )
                         else
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              city = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const CitySearcher()),
+                              );
+
+                              final coords =
+                                  await cityService.obtenerCoordenadas(city);
                               setState(() {
-                                searchingCity = true;
-                                cityService.obtenerCoordenadas('Guadalajara');
+                                lat = coords['lat'].toString();
+                                lon = coords['lng'].toString();
+                              });
+                              await loadWeather();
+                              await loadHourlyForecast();
+                              setState(() {
+                                searchingCity = false;
                               });
                             },
                             style: ElevatedButton.styleFrom(
@@ -188,13 +210,18 @@ class HomeScreenState extends State<HomeScreen> {
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.wind_power),
+                                const Icon(Icons.wind_power),
                                 Text('$windSpeed m/s')
                               ],
                             ),
                             Column(
                               children: [
-                                Text('$temperatureºC'),
+                                Text(
+                                  '$temperatureºC',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 48),
+                                ),
                                 Text('Sensación de $feelsLikeºC')
                               ],
                             ),
@@ -222,8 +249,12 @@ class HomeScreenState extends State<HomeScreen> {
                                         .toStringAsFixed(0);
 
                                     return Card(
-                                      color: const Color.fromARGB(255, 0, 0, 0)
-                                          .withAlpha(0),
+                                      color: darkCard
+                                          ? const Color.fromARGB(
+                                                  255, 220, 220, 220)
+                                              .withAlpha(80)
+                                          : const Color.fromARGB(255, 0, 0, 0)
+                                              .withAlpha(0),
                                       margin: const EdgeInsets.all(8),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -236,18 +267,40 @@ class HomeScreenState extends State<HomeScreen> {
                                           children: [
                                             Text(
                                               hour,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
+                                              style: TextStyle(
+                                                  color: darkCard
+                                                      ? const Color.fromARGB(
+                                                          255, 220, 220, 220)
+                                                      : const Color.fromARGB(
+                                                          255, 0, 0, 0)),
                                             ),
                                             Image.network(
                                               'https://openweathermap.org/img/wn/${item.icon}@2x.png',
                                               width: 50,
                                               height: 50,
                                             ),
-                                            Text('${item.temperature}ºC'),
-                                            Text('$rainChance% lluvia',
-                                                style: const TextStyle(
-                                                    fontSize: 12)),
+                                            Text(
+                                              '${item.temperature}ºC',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: darkCard
+                                                    ? const Color.fromARGB(
+                                                        255, 220, 220, 220)
+                                                    : const Color.fromARGB(
+                                                        255, 0, 0, 0),
+                                              ),
+                                            ),
+                                            Text(
+                                              '$rainChance% lluvia',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: darkCard
+                                                    ? const Color.fromARGB(
+                                                        255, 220, 220, 220)
+                                                    : const Color.fromARGB(
+                                                        255, 0, 0, 0),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),

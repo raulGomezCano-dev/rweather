@@ -9,7 +9,7 @@ class WeatherService {
   final String lon = '-3.6883';
   final String? apiKey = dotenv.env['WEATHER_KEY'];
 
-  Future<WeatherInfo> fetchCurrentWeather() async {
+  Future<WeatherInfo> fetchCurrentWeather(String lat, String lon) async {
     final url = Uri.parse(
       'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric&lang=es',
     );
@@ -24,7 +24,7 @@ class WeatherService {
     }
   }
 
-  Future<List<HourlyWeather>> fetchHourlyForecast() async {
+  Future<List<HourlyWeather>> fetchHourlyForecast(String lat, String lon) async {
     final url = Uri.parse(
       'https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric&lang=es',
     );

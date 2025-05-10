@@ -8,49 +8,49 @@ class BackgroundImageService {
     final apiKey = dotenv.env['IMAGES_KEY'];
 
     // Mapea los tipos de clima a las palabras clave para Unsplash
-    String query = '';
+    String photoId = '';
 
     switch (weatherType) {
       case 'Clear':
-        query = 'clear-sky';
+        photoId = 'ROVBDer29PQ';
         break;
       case 'Clouds':
-        query = 'cloudy';
+        photoId = 'Pe1Ol9oLc4o';
         break;
       case 'Rain':
-        query = 'rainy';
+        photoId = 'Nw_D8v79PM4';
         break;
       case 'Snow':
-        query = 'snow';
+        photoId = 'd3pTF3r_hwY';
         break;
       case 'Thunderstorm':
-        query = 'thunderstorm';
+        photoId = 'nbqlWhOVu6k';
         break;
       case 'Drizzle':
-        query = 'drizzle';
+        photoId = '7aCMkMYR7S0';
         break;
       case 'Mist':
-        query = 'mist';
+        photoId = '7CME6Wlgrdk';
         break;
       case 'Smoke':
-        query = 'smoke';
+        photoId = 'Dey08rsZ6TI';
         break;
       case 'Haze':
-        query = 'haze';
+        photoId = 'of_PAYg4QYE';
         break;
       case 'Dust':
-        query = 'dust';
+        photoId = 'JnZT941-bc8';
         break;
       case 'Fog':
-        query = 'fog';
+        photoId = 'obQacWYxB1I';
         break;
       default:
-        query = 'weather';
+        photoId = 'ROVBDer29PQ';
     }
 
     // Usamos el endpoint de búsqueda de imágenes en Unsplash con un término relacionado con el clima
     final url = Uri.parse(
-      'https://api.unsplash.com/photos/random?query=$query&client_id=$apiKey&orientation=landscape',
+      'https://api.unsplash.com/photos/$photoId?client_id=$apiKey',
     );
 
     final response = await http.get(url);
