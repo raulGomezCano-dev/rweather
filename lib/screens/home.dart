@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:rweather/models/hourly_weather.dart';
 import 'package:rweather/models/weather_info.dart';
 import 'package:rweather/screens/city_searcher.dart';
@@ -33,7 +34,7 @@ class HomeScreenState extends State<HomeScreen> {
   List<HourlyWeather> hourlyForecast = [];
   String? backgroundImageUrl;
   bool searchingCity = false;
-  bool darkCard = false;
+  bool lightCard = false;
 
   @override
   void initState() {
@@ -56,11 +57,11 @@ class HomeScreenState extends State<HomeScreen> {
         loadBackgroundImage(
             weatherData!.weatherType); // Cambiar el fondo según el clima
         // Cambiar el color de Cards y sus Text dependiendo del fondo
-        if(weatherData!.weatherType == 'Clear' || weatherData!.weatherType == 'Clouds'){
-          darkCard = true;
-        }
-        else{
-          darkCard = false;
+        if (weatherData!.weatherType == 'Thunderstorm' ||
+            weatherData!.weatherType == 'Drizzle') {
+          lightCard = true;
+        } else {
+          lightCard = false;
         }
       });
     } catch (e) {
@@ -127,7 +128,8 @@ class HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 0, 0, 0).withAlpha(0),
+                              color: const Color.fromARGB(255, 0, 0, 0)
+                                  .withAlpha(0),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             width: MediaQuery.of(context).size.width / 2,
@@ -236,72 +238,103 @@ class HomeScreenState extends State<HomeScreen> {
                         hourlyForecast.isEmpty
                             ? const Text('Fallo en predicción')
                             : SizedBox(
-                                height: 140,
+                                height: 180,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: hourlyForecast.length,
                                   itemBuilder: (context, index) {
                                     final item = hourlyForecast[index];
-                                    final hour =
-                                        TimeOfDay.fromDateTime(item.dateTime)
-                                            .format(context);
+                                    final day = DateFormat.EEEE('es_ES').format(item.dateTime);
+                                    final hour = DateFormat('HH:mm').format(item.dateTime);
+
                                     final rainChance = (item.probOfRain * 100)
                                         .toStringAsFixed(0);
 
-                                    return Card(
-                                      color: darkCard
-                                          ? const Color.fromARGB(
-                                                  255, 220, 220, 220)
-                                              .withAlpha(80)
-                                          : const Color.fromARGB(255, 0, 0, 0)
-                                              .withAlpha(0),
-                                      margin: const EdgeInsets.all(8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              hour,
-                                              style: TextStyle(
-                                                  color: darkCard
+                                    return SizedBox(
+                                      width: 120,
+                                      child: Card(
+                                        color: lightCard
+                                            ? const Color.fromARGB(
+                                                    255, 220, 220, 220)
+                                                .withAlpha(80)
+                                            : const Color.fromARGB(255, 0, 0, 0)
+                                                .withAlpha(30),
+                                        margin: const EdgeInsets.all(8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                day,
+                                                style: TextStyle(
+                                                    color: lightCard
+                                                        ? const Color.fromARGB(
+                                                            255, 0, 0, 0)
+                                                        : const Color.fromARGB(
+                                                            255, 220, 220, 220)),
+                                              ),
+                                              Text(
+                                                hour,
+                                                style: TextStyle(
+                                                    color: lightCard
+                                                        ? const Color.fromARGB(
+                                                            255, 0, 0, 0)
+                                                        : const Color.fromARGB(
+                                                            255, 220, 220, 220)),
+                                              ),
+                                              Image.network(
+                                                'https://openweathermap.org/img/wn/${item.icon}@2x.png',
+                                                width: 50,
+                                                height: 50,
+                                              ),
+                                              Text(
+                                                '${item.temperature}ºC',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                  color: lightCard
                                                       ? const Color.fromARGB(
-                                                          255, 220, 220, 220)
+                                                          255, 0, 0, 0)
                                                       : const Color.fromARGB(
-                                                          255, 0, 0, 0)),
-                                            ),
-                                            Image.network(
-                                              'https://openweathermap.org/img/wn/${item.icon}@2x.png',
-                                              width: 50,
-                                              height: 50,
-                                            ),
-                                            Text(
-                                              '${item.temperature}ºC',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: darkCard
-                                                    ? const Color.fromARGB(
-                                                        255, 220, 220, 220)
-                                                    : const Color.fromARGB(
-                                                        255, 0, 0, 0),
+                                                          255, 220, 220, 220),
+                                                ),
                                               ),
-                                            ),
-                                            Text(
-                                              '$rainChance% lluvia',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: darkCard
-                                                    ? const Color.fromARGB(
-                                                        255, 220, 220, 220)
-                                                    : const Color.fromARGB(
-                                                        255, 0, 0, 0),
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.water_drop,
+                                                      color: lightCard
+                                                          ? const Color.fromARGB(
+                                                              255, 0, 0, 0)
+                                                          : const Color.fromARGB(
+                                                              255, 220, 220, 220),
+                                                              size: 20,
+                                                    ),
+                                                    Text(
+                                                      '$rainChance%',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: lightCard
+                                                            ? const Color
+                                                                .fromARGB(
+                                                                255, 0, 0, 0)
+                                                            : const Color
+                                                                .fromARGB(255,
+                                                                220, 220, 220),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     );
