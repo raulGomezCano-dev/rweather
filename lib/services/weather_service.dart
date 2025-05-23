@@ -5,8 +5,6 @@ import 'package:rweather/models/hourly_weather.dart';
 import 'package:rweather/models/weather_info.dart';
 
 class WeatherService {
-  final String lat = '40.4531';
-  final String lon = '-3.6883';
   final String? apiKey = dotenv.env['WEATHER_KEY'];
 
   Future<WeatherInfo> fetchCurrentWeather(String lat, String lon) async {
@@ -24,7 +22,8 @@ class WeatherService {
     }
   }
 
-  Future<List<HourlyWeather>> fetchHourlyForecast(String lat, String lon) async {
+  Future<List<HourlyWeather>> fetchHourlyForecast(
+      String lat, String lon) async {
     final url = Uri.parse(
       'https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric&lang=es',
     );
@@ -37,4 +36,5 @@ class WeatherService {
       throw Exception('Error al obtener la previsión');
     }
   }
+
 }

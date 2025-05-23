@@ -3,19 +3,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:rweather/screens/home.dart';
 
 class CitySearcher extends StatefulWidget {
-  const CitySearcher({super.key});
+  final bool fromStart; // Indica si se navega a esta pantalla desde el inicio o no
+  const CitySearcher({super.key, required this.fromStart});
 
   @override
   State<CitySearcher> createState() => _CitySearcherState();
 }
 
 class _CitySearcherState extends State<CitySearcher> {
-  final String? googleApiKey= dotenv.env['MAPS_KEY'];
+  final String? googleApiKey = dotenv.env['MAPS_KEY'];
   final TextEditingController _controller = TextEditingController();
   List<String> suggestions = [];
-  Timer? _debounceTimer; // Para manejar el debounce
+  Timer? _debounceTimer;
 
   // Función que hace la llamada HTTP a la API de Google Places
   Future<void> fetchSuggestions(String input) async {
@@ -50,7 +52,8 @@ class _CitySearcherState extends State<CitySearcher> {
 
     // Establecemos un nuevo timer
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      fetchSuggestions(query); // Realizamos la llamada después de 300ms de inactividad
+      fetchSuggestions(
+          query); // Realizamos la llamada después de 300ms de inactividad
     });
   }
 
@@ -58,6 +61,19 @@ class _CitySearcherState extends State<CitySearcher> {
   void dispose() {
     _debounceTimer?.cancel(); // Limpiamos el timer cuando el widget se destruya
     super.dispose();
+  }
+
+  void _navigateToHomeScreen(String city) {
+    if (widget.fromStart) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(city: city),
+        ),
+      );
+    } else {
+      Navigator.pop(context, city);
+    }
   }
 
   @override
@@ -70,7 +86,8 @@ class _CitySearcherState extends State<CitySearcher> {
           children: [
             TextField(
               controller: _controller,
-              onChanged: _onSearchChanged, // Llamamos a _onSearchChanged en cada keystroke
+              onChanged:
+                  _onSearchChanged, // Llamamos a _onSearchChanged en cada keystroke
               decoration: const InputDecoration(
                 hintText: 'Escribe una ciudad',
                 border: OutlineInputBorder(),
@@ -85,7 +102,8 @@ class _CitySearcherState extends State<CitySearcher> {
                   return ListTile(
                     title: Text(suggestion),
                     onTap: () {
-                      Navigator.pop(context, suggestion); // Devolver ciudad seleccionada
+                      _navigateToHomeScreen(
+                          suggestion); // Devolver ciudad seleccionada
                     },
                   );
                 },

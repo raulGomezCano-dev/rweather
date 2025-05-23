@@ -31,8 +31,8 @@ class CitySearchService {
   }
 
   /// Obtener coordenadas de una ciudad usando Place Details API
-  // Future<Map<String, double>> obtenerCoordenadas(String placeId) async {
-  Future<Map<String, dynamic>> obtenerCoordenadas(String place) async {
+  // Future<Map<String, double>> getCoordinates(String placeId) async {
+  Future<Map<String, dynamic>> getCoordinates(String place) async {
     if (apiKey == null) throw Exception('API Key no encontrada');
 
     final uri = Uri.parse(
