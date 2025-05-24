@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rweather/screens/home.dart';
+import 'package:rweather/services/city_search_service.dart';
 import 'package:rweather/services/geolocator_service.dart';
 import 'city_searcher.dart';
 
@@ -14,16 +15,20 @@ class StartScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 150,
-              height: 150,
-              color: Colors.grey[300],
-              child: const Center(
-                child: Text(
-                  'LOGO',
-                  style: TextStyle(fontSize: 24, color: Colors.black54),
-                ),
-              ),
+            // Container(
+            //   width: 150,
+            //   height: 150,
+            //   color: Colors.grey[300],
+            //   child: const Center(
+            //     child: Text(
+            //       'LOGO',
+            //       style: TextStyle(fontSize: 24, color: Colors.black54),
+            //     ),
+            //   ),
+            // ),
+            const Image(
+              height: 200,
+              image: AssetImage('assets/images/logo.png'),
             ),
             const SizedBox(height: 50),
             ElevatedButton(
@@ -81,12 +86,21 @@ class StartScreen extends StatelessWidget {
   }
 
   void getCurrentPosition(BuildContext context) async {
+    final cityService = CitySearchService();
     bool permission = await GeolocatorService.checkPermissions(context);
     if (permission) {
       var location = await GeolocatorService.getCurrentPosition();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Ubicacion: $location'),
+        ),
+      );
+      String actualCity = await cityService.getCityFromCoordinates(
+          location.latitude.toString(), location.longitude.toString());
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(city: actualCity),
         ),
       );
     }
