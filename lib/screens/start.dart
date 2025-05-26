@@ -15,34 +15,25 @@ class StartScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Container(
-            //   width: 150,
-            //   height: 150,
-            //   color: Colors.grey[300],
-            //   child: const Center(
-            //     child: Text(
-            //       'LOGO',
-            //       style: TextStyle(fontSize: 24, color: Colors.black54),
-            //     ),
-            //   ),
-            // ),
             const Image(
-              height: 200,
-              image: AssetImage('assets/images/logo.png'),
+              height: 300,
+              image: AssetImage('assets/icon/launcher_icon.png'),
             ),
-            const SizedBox(height: 50),
+            Text('Consulta con RWeather el tiempo donde quieras'),
+            const SizedBox(height: 70),
             ElevatedButton(
               onPressed: () {
                 getCurrentPosition(context);
               },
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                backgroundColor: const Color.fromARGB(255, 119, 168, 168),
-              ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                  fixedSize: Size(MediaQuery.of(context).size.width * 0.8, 80)),
               child: const Text(
                 'Ver mi ubicación',
                 style: TextStyle(
+                  fontSize: 25,
                   color: Color.fromARGB(255, 207, 205, 195),
                 ),
               ),
@@ -69,12 +60,15 @@ class StartScreen extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  backgroundColor: const Color.fromARGB(255, 119, 168, 168)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                fixedSize: Size(MediaQuery.of(context).size.width * 0.8, 80),
+              ),
               child: const Text(
                 'Buscar ciudad',
                 style: TextStyle(
+                  fontSize: 25,
                   color: Color.fromARGB(255, 207, 205, 195),
                 ),
               ),
@@ -90,11 +84,6 @@ class StartScreen extends StatelessWidget {
     bool permission = await GeolocatorService.checkPermissions(context);
     if (permission) {
       var location = await GeolocatorService.getCurrentPosition();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ubicacion: $location'),
-        ),
-      );
       String actualCity = await cityService.getCityFromCoordinates(
           location.latitude.toString(), location.longitude.toString());
       Navigator.pushReplacement(
