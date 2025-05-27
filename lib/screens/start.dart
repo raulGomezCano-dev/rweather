@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:rweather/screens/home.dart';
 import 'package:rweather/services/city_search_service.dart';
 import 'package:rweather/services/geolocator_service.dart';
@@ -14,12 +15,14 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
+  bool isLoading = false;
   bool isConnected = true;
   late final InternetConnectionService _connectionService;
 
   @override
   void initState() {
     super.initState();
+    // Manejar error de conexión a Internet
     _connectionService = InternetConnectionService();
     _connectionService.isConnected.addListener(() {
       final connected = _connectionService.isConnected.value;
@@ -45,74 +48,101 @@ class _StartScreenState extends State<StartScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 207, 205, 195),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Image(
-              height: 300,
-              image: AssetImage('assets/icon/launcher_icon.png'),
-            ),
-            Text('Consulta con RWeather el tiempo donde quieras'),
-            const SizedBox(height: 70),
-            ElevatedButton(
-              onPressed: () {
-                isConnected
-                    ? getCurrentPosition(context)
-                    : InternetConnectionSnackbar.show(context, isConnected);
-              },
-              style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  backgroundColor: const Color.fromARGB(255, 119, 168, 168),
-                  fixedSize: Size(MediaQuery.of(context).size.width * 0.8, 80)),
-              child: const Text(
-                'Ver mi ubicación',
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Color.fromARGB(255, 207, 205, 195),
-                ),
+        child: isLoading
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Image(
+                    height: 200,
+                    image: AssetImage('assets/icon/launcher_icon.png'),
+                  ),
+                  Text('Consulta con RWeather el tiempo donde quieras'),
+                  const SizedBox(height: 70),
+                  ElevatedButton(
+                    onPressed: () {
+                      isConnected
+                          ? getCurrentPosition(context)
+                          : InternetConnectionSnackbar.show(
+                              context, isConnected);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                      backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                      fixedSize:
+                          Size(MediaQuery.of(context).size.width * 0.75, 60),
+                    ),
+                    child: const Text(
+                      'Ver mi ubicación',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Color.fromARGB(255, 207, 205, 195),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      isConnected
+                          ? searchCity()
+                          : InternetConnectionSnackbar.show(
+                              context, isConnected);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                      backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                      fixedSize:
+                          Size(MediaQuery.of(context).size.width * 0.75, 60),
+                    ),
+                    child: const Text(
+                      'Buscar ciudad',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Color.fromARGB(255, 207, 205, 195),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                isConnected
-                    ? searchCity()
-                    : InternetConnectionSnackbar.show(context, isConnected);
-              },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                backgroundColor: const Color.fromARGB(255, 119, 168, 168),
-                fixedSize: Size(MediaQuery.of(context).size.width * 0.8, 80),
-              ),
-              child: const Text(
-                'Buscar ciudad',
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Color.fromARGB(255, 207, 205, 195),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
   void getCurrentPosition(BuildContext context) async {
-    final cityService = CitySearchService();
-    bool permission = await GeolocatorService.checkPermissions(context);
-    if (permission) {
-      var location = await GeolocatorService.getCurrentPosition();
-      String actualCity = await cityService.getCityFromCoordinates(
-          location.latitude.toString(), location.longitude.toString());
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(city: actualCity),
+    // Manejar primero si la ubicación está desactivada
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            serviceEnabled ? 'Ubicación activada' : 'Ubicación desactivada',
+          ),
+          backgroundColor: serviceEnabled ? Colors.green : Colors.red,
+          duration: Duration(seconds: 3),
         ),
       );
+    } else {
+      setState(() {
+        isLoading = true;
+      });
+      final cityService = CitySearchService();
+      bool permission = await GeolocatorService.checkPermissions(context);
+      if (permission) {
+        var location = await GeolocatorService.getCurrentPosition();
+        String actualCity = await cityService.getCityFromCoordinates(
+            location.latitude.toString(), location.longitude.toString());
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(city: actualCity),
+          ),
+        );
+      }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

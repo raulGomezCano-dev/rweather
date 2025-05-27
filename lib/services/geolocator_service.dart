@@ -26,7 +26,7 @@ class GeolocatorService {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('cancelar'),
+                child: Text('Cancelar'),
               ),
             ],
           );
@@ -54,7 +54,7 @@ class GeolocatorService {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('cancelar'),
+                child: Text('Cancelar'),
               ),
             ],
           );
@@ -80,7 +80,7 @@ class GeolocatorService {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('cancelar'),
+                child: Text('Cancelar'),
               ),
             ],
           );

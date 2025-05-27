@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:rweather/models/hourly_weather.dart';
 import 'package:rweather/models/weather_info.dart';
 import 'package:rweather/screens/city_searcher.dart';
+import 'package:rweather/screens/start.dart';
 import 'package:rweather/services/background_image_service.dart';
 import 'package:rweather/services/city_search_service.dart';
 import 'package:rweather/services/internet_connection_service.dart';
@@ -179,45 +180,74 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           )
                         else
-                          ElevatedButton(
-                            onPressed: () async {
-                              final selectedCity = await Navigator.push<String>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CitySearcher(fromStart: false),
-                                ),
-                              );
-
-                              if (selectedCity != null &&
-                                  selectedCity.isNotEmpty) {
-                                setState(() {
-                                  city = selectedCity;
-                                });
-                                await initializeWeather();
-                              }
-                              setState(() {
-                                searchingCity = false;
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              backgroundColor:
-                                  const Color.fromARGB(255, 0, 0, 0)
-                                      .withAlpha(0),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: Stack(
+                              alignment: Alignment.center,
                               children: [
-                                Icon(
-                                  Icons.search,
-                                  color: Colors.white70,
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: BackButton(
+                                    onPressed: () {
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const StartScreen()),
+                                        (Route<dynamic> route) => false,
+                                      );
+                                    },
+                                    color: lightCard
+                                        ? const Color.fromARGB(
+                                                255, 220, 220, 220)
+                                        : const Color.fromARGB(255, 0, 0, 0),
+                                  ),
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Buscar ciudad',
-                                  style: TextStyle(color: Colors.white70),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      final selectedCity =
+                                          await Navigator.push<String>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CitySearcher(
+                                                  fromStart: false),
+                                        ),
+                                      );
+
+                                      if (selectedCity != null &&
+                                          selectedCity.isNotEmpty) {
+                                        setState(() {
+                                          city = selectedCity;
+                                        });
+                                        await initializeWeather();
+                                      }
+                                      setState(() {
+                                        searchingCity = false;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 12),
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 0, 0, 0)
+                                              .withAlpha(0),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.search,
+                                            color: Colors.white70),
+                                        SizedBox(width: 8),
+                                        Text('Buscar ciudad',
+                                            style: TextStyle(
+                                                color: Colors.white70)),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
