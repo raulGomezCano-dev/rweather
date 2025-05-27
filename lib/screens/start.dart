@@ -2,10 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:rweather/screens/home.dart';
 import 'package:rweather/services/city_search_service.dart';
 import 'package:rweather/services/geolocator_service.dart';
+import 'package:rweather/services/internet_connection_service.dart';
+import 'package:rweather/widgets/internet_connection_snackbar.dart';
 import 'city_searcher.dart';
 
-class StartScreen extends StatelessWidget {
+class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
+
+  @override
+  State<StartScreen> createState() => _StartScreenState();
+}
+
+class _StartScreenState extends State<StartScreen> {
+  bool isConnected = true;
+  late final InternetConnectionService _connectionService;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectionService = InternetConnectionService();
+    _connectionService.isConnected.addListener(() {
+      final connected = _connectionService.isConnected.value;
+      if (isConnected == true && connected == true) {
+        return;
+      } else {
+        InternetConnectionSnackbar.show(context, isConnected);
+        setState(() {
+          isConnected = connected;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectionService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +56,9 @@ class StartScreen extends StatelessWidget {
             const SizedBox(height: 70),
             ElevatedButton(
               onPressed: () {
-                getCurrentPosition(context);
+                isConnected
+                    ? getCurrentPosition(context)
+                    : InternetConnectionSnackbar.show(context, isConnected);
               },
               style: ElevatedButton.styleFrom(
                   padding:
@@ -41,23 +76,9 @@ class StartScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                final selectedCity = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CitySearcher(
-                      fromStart: true,
-                    ),
-                  ),
-                );
-
-                if (selectedCity != null && selectedCity is String) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomeScreen(city: selectedCity),
-                    ),
-                  );
-                }
+                isConnected
+                    ? searchCity()
+                    : InternetConnectionSnackbar.show(context, isConnected);
               },
               style: ElevatedButton.styleFrom(
                 padding:
@@ -90,6 +111,26 @@ class StartScreen extends StatelessWidget {
         context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(city: actualCity),
+        ),
+      );
+    }
+  }
+
+  void searchCity() async {
+    final selectedCity = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CitySearcher(
+          fromStart: true,
+        ),
+      ),
+    );
+
+    if (selectedCity != null && selectedCity is String) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(city: selectedCity),
         ),
       );
     }

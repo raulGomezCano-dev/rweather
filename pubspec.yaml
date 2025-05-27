@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.20.2
   geolocator: ^14.0.0
   flutter_launcher_icons: ^0.14.3
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_test:

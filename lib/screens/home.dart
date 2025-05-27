@@ -5,7 +5,9 @@ import 'package:rweather/models/weather_info.dart';
 import 'package:rweather/screens/city_searcher.dart';
 import 'package:rweather/services/background_image_service.dart';
 import 'package:rweather/services/city_search_service.dart';
+import 'package:rweather/services/internet_connection_service.dart';
 import 'package:rweather/services/weather_service.dart';
+import 'package:rweather/widgets/internet_connection_snackbar.dart';
 
 class HomeScreen extends StatefulWidget {
   final String city;
@@ -16,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+  bool isConnected = true;
+  late final InternetConnectionService _connectionService;
   final weatherService = WeatherService();
   final backgroundImageService = BackgroundImageService();
   final cityService = CitySearchService();
@@ -38,8 +42,26 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _connectionService = InternetConnectionService();
+    _connectionService.isConnected.addListener(() {
+      final connected = _connectionService.isConnected.value;
+      if (isConnected == true && connected == true) {
+        return;
+      } else {
+        InternetConnectionSnackbar.show(context, isConnected);
+        setState(() {
+          isConnected = connected;
+        });
+      }
+    });
     city = widget.city;
     initializeWeather(); // Método auxiliar, ya que no se puede usar async dentro de initState
+  }
+
+  @override
+  void dispose() {
+    _connectionService.dispose();
+    super.dispose();
   }
 
   Future<void> initializeWeather() async {
@@ -105,19 +127,20 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String weatherType = weatherData?.weatherType ??
-        'Clear'; // Por defecto 'Clear' si no se obtiene
-
     return Scaffold(
       body: weatherData == null || backgroundImageUrl == null
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: () async {
-                await loadWeather();
-                await loadHourlyForecast();
-                setState(() {
-                  searchingCity = false;
-                });
+                if (isConnected) {
+                  await loadWeather();
+                  await loadHourlyForecast();
+                  setState(() {
+                    searchingCity = false;
+                  });
+                } else {
+                  InternetConnectionSnackbar.show(context, isConnected);
+                }
               },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
