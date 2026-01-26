@@ -46,7 +46,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 207, 205, 195),
+      backgroundColor: Colors.white,
       body: Center(
         child: isLoading
             ? const CircularProgressIndicator()
@@ -67,17 +67,21 @@ class _StartScreenState extends State<StartScreen> {
                               context, isConnected);
                     },
                     style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            20), // Usa 0 para esquinas completamente rectas
+                      ),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 16),
-                      backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                      backgroundColor: const Color.fromARGB(255, 6, 201, 245),
                       fixedSize:
                           Size(MediaQuery.of(context).size.width * 0.75, 60),
                     ),
                     child: const Text(
-                      'Ver mi ubicación',
+                      'Ver ubicación',
                       style: TextStyle(
                         fontSize: 22,
-                        color: Color.fromARGB(255, 207, 205, 195),
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -92,15 +96,19 @@ class _StartScreenState extends State<StartScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 16),
-                      backgroundColor: const Color.fromARGB(255, 119, 168, 168),
+                      backgroundColor: const Color.fromARGB(255, 6, 201, 245),
                       fixedSize:
                           Size(MediaQuery.of(context).size.width * 0.75, 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            20), // Usa 0 para esquinas completamente rectas
+                      ),
                     ),
                     child: const Text(
                       'Buscar ciudad',
                       style: TextStyle(
                         fontSize: 22,
-                        color: Color.fromARGB(255, 207, 205, 195),
+                        color: Colors.white,
                       ),
                     ),
                   ),
