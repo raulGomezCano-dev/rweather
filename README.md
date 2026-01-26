@@ -1,16 +1,12 @@
-# rweather
+# RWeather
 
-A new Flutter project.
+Aplicación para observar el clima de cualquier ciudad en tiempo real y con un pronóstico de 5 días.
 
-## Getting Started
+## Descargarse la aplicación
 
-This project is a starting point for a Flutter application.
+En este proyecto, busca dentro de la rama main el archivo app-release.apk.
 
-A few resources to get you started if this is your first Flutter project:
+Es posible que se le solicite permisos para descargar esta aplicación o que se muestren advertencias, ya que no es una descarga mediante una plataforma reconocida como Google Play Store.
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
