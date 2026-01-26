@@ -1,12 +1,12 @@
 # RWeather
 
-Aplicación para observar el clima de cualquier ciudad en tiempo real y con un pronóstico de 5 días.
+Aplicación Android desarrollada con Flutter para observar el clima de cualquier ciudad en tiempo real y con un pronóstico de 5 días.
 
-## Descargarse la aplicación
+## 📲 Descargar la aplicación
 
-En este proyecto, busca dentro de la rama main el archivo app-release.apk.
+Pulsa en el siguiente enlace y después pulsa sobre el archivo app-release.apk.
+- [Enlace de descarga](https://github.com/raulGomezCano-dev/rweather/releases)
 
-Es posible que se le solicite permisos para descargar esta aplicación o que se muestren advertencias, ya que no es una descarga mediante una plataforma reconocida como Google Play Store.
+⚠️ Es normal que Android muestre advertencias de seguridad, ya que la aplicación no se distribuye a través de Google Play Store.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+**Versión mínima requerida:** Android 5.0 (API 21)
